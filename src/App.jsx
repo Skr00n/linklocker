@@ -9,28 +9,23 @@ function App() {
   const [bio, setBio] = useState('');
   const [links, setLinks] = useState([{ title: '', url: '' }]);
 
-  // Track login state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
     });
-
     return () => unsubscribe();
   }, []);
 
-  // Update link inputs
   const handleLinkChange = (index, field, value) => {
     const updated = [...links];
     updated[index][field] = value;
     setLinks(updated);
   };
 
-  // Add a new blank link
   const addLink = () => {
     setLinks([...links, { title: '', url: '' }]);
   };
 
-  // Save user profile to Firestore
   const saveProfile = async () => {
     try {
       await setDoc(doc(db, 'users', user.uid), {
@@ -45,69 +40,98 @@ function App() {
     }
   };
 
-  // Require login to view the editor
   if (!user) {
     return (
-      <div style={{ padding: 20 }}>
-        <p>Please <a href="/auth">log in</a> to use the editor.</p>
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 text-gray-800">
+        <p className="text-xl">Please <a href="/auth" className="text-blue-600 underline">log in</a> to use the editor.</p>
       </div>
     );
   }
 
   return (
-    <div style={{ padding: 20, fontFamily: 'sans-serif' }}>
-      <h1>LinkLocker</h1>
-      <p>Logged in as: {user.email}</p>
-      <button onClick={() => signOut(auth)} style={{ marginBottom: 20 }}>Logout</button>
+    <div className="min-h-screen bg-white text-gray-800 p-6">
+      <div className="max-w-3xl mx-auto">
+        <header className="mb-8">
+          <h1 className="text-4xl font-bold text-blue-600">LinkLocker</h1>
+          <p className="text-sm text-gray-600">Logged in as: {user.email}</p>
+          <button
+            onClick={() => signOut(auth)}
+            className="mt-2 text-sm text-red-600 underline"
+          >
+            Logout
+          </button>
+        </header>
 
-      <input
-        type="text"
-        placeholder="Your Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        style={{ display: 'block', marginBottom: 10, padding: 8 }}
-      />
+        <input
+          type="text"
+          placeholder="Your Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="w-full border border-gray-300 p-3 rounded mb-4"
+        />
 
-      <textarea
-        placeholder="Your Bio"
-        value={bio}
-        onChange={(e) => setBio(e.target.value)}
-        style={{ display: 'block', marginBottom: 10, padding: 8, width: '100%' }}
-      />
+        <textarea
+          placeholder="Your Bio"
+          value={bio}
+          onChange={(e) => setBio(e.target.value)}
+          className="w-full border border-gray-300 p-3 rounded mb-4"
+        />
 
-      <h2>Links</h2>
-      {links.map((link, index) => (
-        <div key={index} style={{ marginBottom: 10 }}>
-          <input
-            type="text"
-            placeholder="Link Title"
-            value={link.title}
-            onChange={(e) => handleLinkChange(index, 'title', e.target.value)}
-            style={{ marginRight: 10, padding: 6 }}
-          />
-          <input
-            type="text"
-            placeholder="Link URL"
-            value={link.url}
-            onChange={(e) => handleLinkChange(index, 'url', e.target.value)}
-            style={{ padding: 6 }}
-          />
-        </div>
-      ))}
-
-      <button onClick={addLink} style={{ marginRight: 10 }}>Add New Link</button>
-      <button onClick={saveProfile}>Save Profile</button>
-
-      <h2 style={{ marginTop: 40 }}>Preview</h2>
-      <h3>{name}</h3>
-      <p>{bio}</p>
-      <ul>
+        <h2 className="text-xl font-semibold mb-2">Links</h2>
         {links.map((link, index) => (
-          <li key={index}>
-            <a href={link.url} target="_blank" rel="noopener noreferrer">{link.title}</a>
-          </li>
+          <div key={index} className="flex flex-col md:flex-row gap-3 mb-4">
+            <input
+              type="text"
+              placeholder="Link Title"
+              value={link.title}
+              onChange={(e) => handleLinkChange(index, 'title', e.target.value)}
+              className="flex-1 border border-gray-300 p-2 rounded"
+            />
+            <input
+              type="text"
+              placeholder="Link URL"
+              value={link.url}
+              onChange={(e) => handleLinkChange(index, 'url', e.target.value)}
+              className="flex-1 border border-gray-300 p-2 rounded"
+            />
+          </div>
         ))}
-      </ul>
+
+        <div className="mb-6 flex gap-4">
+          <button
+            onClick={addLink}
+            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
+          >
+            Add New Link
+          </button>
+          <button
+            onClick={saveProfile}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          >
+            Save Profile
+          </button>
+        </div>
+
+        <h2 className="text-xl font-semibold mt-10 mb-2">Preview</h2>
+        <div className="bg-gray-50 p-4 border rounded">
+          <h3 className="text-lg font-bold">{name}</h3>
+          <p className="text-gray-700">{bio}</p>
+          <ul className="mt-3 list-disc pl-5">
+            {links.map((link, index) => (
+              <li key={index}>
+                <a
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 underline"
+                >
+                  {link.title}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }
